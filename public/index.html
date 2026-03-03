@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document Previewer</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="layout">
+      <section class="controls">
+        <h1>Document Previewer</h1>
+        <p>Drop a Word, PowerPoint, or Excel file to convert it into a PDF preview.</p>
+        <div id="dropzone" class="dropzone" aria-label="Drop Office file here">
+          Drag and drop a <code>.doc</code>, <code>.docx</code>, <code>.ppt</code>, <code>.pptx</code>, <code>.xls</code>, or <code>.xlsx</code> file here
+        </div>
+        <div class="actions">
+          <button id="pickFile" type="button">Upload file</button>
+          <input id="fileInput" type="file" accept=".doc,.docx,.ppt,.pptx,.xls,.xlsx" hidden />
+        </div>
+        <p id="status" class="status" role="status"></p>
+      </section>
+      <section class="preview">
+        <iframe id="previewFrame" title="PDF preview"></iframe>
+      </section>
+    </main>
+    <script src="/app.js" defer></script>
+  </body>
+</html>
