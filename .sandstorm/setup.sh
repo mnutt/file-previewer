@@ -15,6 +15,7 @@ apt-get update
 
 apt-get install -y --no-install-suggests --no-install-recommends \
   nodejs \
+  capnproto \
   git-core \
   g++ \
   python3-pip \
@@ -31,6 +32,8 @@ python3 -m pip install --break-system-packages unoserver
 
 # Remove Java integration and aggressively trim optional LO assets.
 apt-get purge -y libreoffice-java-common || true
+
+echo "Removing unused components"
 rm -rf /usr/lib/libreoffice/share/gallery || true
 rm -rf /usr/share/help || true
 rm -rf /usr/share/hunspell /usr/share/hyphen /usr/share/mythes || true
@@ -38,13 +41,15 @@ find /usr/share/libreoffice -maxdepth 2 -type d -name "dict-*" -prune -exec rm -
 find /usr/share/libreoffice -maxdepth 2 -type d -name "autotext" -prune -exec rm -rf {} + 2>/dev/null || true
 find /usr/share/locale -mindepth 1 -maxdepth 1 ! -name "en" ! -name "en_US" -prune -exec rm -rf {} + 2>/dev/null || true
 
+echo "Regenerating fontconfig cache"
 # Pre-generate fontconfig cache in the image.
 fc-cache -f || true
 
 # Pre-bake a fully initialized LO user profile into the image.
 rm -rf /opt/libreoffice-profile
 mkdir -p /opt/libreoffice-profile
-JAVA_HOME= LO_JAVA_ENABLED=false /usr/bin/soffice \
+echo "Starting soffice to pre-warm profile"
+timeout 25s env JAVA_HOME= LO_JAVA_ENABLED=false /usr/bin/soffice \
   -env:UserInstallation=file:///opt/libreoffice-profile \
   --headless \
   --invisible \
@@ -52,6 +57,7 @@ JAVA_HOME= LO_JAVA_ENABLED=false /usr/bin/soffice \
   --nodefault \
   --nofirststartwizard \
   --nologo \
-  --norestore || true
+  --norestore \
+  --terminate_after_init || true
 
 exit 0

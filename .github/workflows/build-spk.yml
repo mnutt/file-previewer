@@ -1,0 +1,70 @@
+name: Build Sandstorm SPK
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-test-spk:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Test SPK
+        id: build-test
+        uses: mnutt/build-spk/actions/build@main
+        with:
+          sandstorm_keyring_b64: ${{ secrets.SANDSTORM_TEST_APP_KEY_B64 }}
+          pack_mode: test
+          vm_timeout: '1200s'
+          spk_output_path: build/file-previewer-test-${{ github.sha }}.spk
+          artifact_name: file-previewer-test-spk-${{ github.sha }}
+
+      - name: Publish Test SPK Preview
+        id: publish-preview
+        uses: mnutt/build-spk/actions/publish-preview-spk@main
+        with:
+          spk_path: build/file-previewer-test-${{ github.sha }}.spk
+          package_id: ${{ steps.build-test.outputs.package_id }}
+
+      - name: Comment PR Loader URL
+        if: github.event_name == 'pull_request'
+        uses: mnutt/build-spk/actions/comment-pr-loader@main
+        with:
+          spk_http_url: ${{ steps.publish-preview.outputs.spk_http_url }}
+          package_id: ${{ steps.publish-preview.outputs.package_id }}
+
+  build-release-spk:
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Release SPK
+        uses: mnutt/build-spk/actions/build@main
+        with:
+          sandstorm_keyring_b64: ${{ secrets.SANDSTORM_APP_KEY_B64 }}
+          vm_timeout: '1200s'
+          spk_output_path: build/file-previewer-${{ github.ref_name }}.spk
+          artifact_name: file-previewer-release-spk-${{ github.ref_name }}
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/file-previewer-${{ github.ref_name }}.spk
