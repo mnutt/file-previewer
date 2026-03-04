@@ -15,6 +15,7 @@ apt-get update
 
 apt-get install -y --no-install-suggests --no-install-recommends \
   nodejs \
+  capnproto \
   git-core \
   g++ \
   python3-pip \
