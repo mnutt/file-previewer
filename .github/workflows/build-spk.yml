@@ -29,7 +29,7 @@ jobs:
         with:
           sandstorm_keyring_b64: ${{ secrets.SANDSTORM_TEST_APP_KEY_B64 }}
           pack_mode: test
-          vm_timeout_secs: '1200'
+          vm_timeout: '1200s'
           spk_output_path: build/file-previewer-test-${{ github.sha }}.spk
           artifact_name: file-previewer-test-spk-${{ github.sha }}
 
@@ -60,7 +60,7 @@ jobs:
         uses: mnutt/build-spk/actions/build@main
         with:
           sandstorm_keyring_b64: ${{ secrets.SANDSTORM_APP_KEY_B64 }}
-          vm_timeout_secs: '1200'
+          vm_timeout: '1200s'
           spk_output_path: build/file-previewer-${{ github.ref_name }}.spk
           artifact_name: file-previewer-release-spk-${{ github.ref_name }}
 
