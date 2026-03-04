@@ -49,7 +49,7 @@ fc-cache -f || true
 rm -rf /opt/libreoffice-profile
 mkdir -p /opt/libreoffice-profile
 echo "Starting soffice to pre-warm profile"
-JAVA_HOME= LO_JAVA_ENABLED=false /usr/bin/soffice \
+timeout 25s env JAVA_HOME= LO_JAVA_ENABLED=false /usr/bin/soffice \
   -env:UserInstallation=file:///opt/libreoffice-profile \
   --headless \
   --invisible \
@@ -57,6 +57,7 @@ JAVA_HOME= LO_JAVA_ENABLED=false /usr/bin/soffice \
   --nodefault \
   --nofirststartwizard \
   --nologo \
-  --norestore || true
+  --norestore \
+  --terminate_after_init || true
 
 exit 0
